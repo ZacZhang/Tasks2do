@@ -1,16 +1,19 @@
 package com.zaczhang.tasks2do;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.CheckBox;
 
 import com.zaczhang.tasks2do.models.Todo;
+import com.zaczhang.tasks2do.utils.UIUtils;
 
 import java.util.List;
 
@@ -18,10 +21,11 @@ import java.util.List;
 public class TodoListAdapter extends BaseAdapter {
 
     private List<Todo> todos;
+    private MainActivity activity;
     private Context context;
 
-    public TodoListAdapter(@NonNull Context context, @NonNull List<Todo> todos) {
-        this.context = context;
+    public TodoListAdapter(@NonNull MainActivity activity, @NonNull List<Todo> todos) {
+        this.activity = activity;
         this.todos = todos;
     }
 
@@ -32,7 +36,7 @@ public class TodoListAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return todos.get(position);
     }
 
     @Override
@@ -41,10 +45,10 @@ public class TodoListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.main_list_item, parent, false);
+            convertView = activity.getLayoutInflater().inflate(R.layout.main_list_item, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.tvTodoText = (TextView) convertView.findViewById(R.id.main_list_item_text);
             convertView.setTag(viewHolder);
@@ -52,12 +56,32 @@ public class TodoListAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        Todo todo = todos.get(position);
+        final Todo todo = todos.get(position);
         viewHolder.tvTodoText.setText(todo.text);
+        viewHolder.doneCheckbox.setChecked(todo.done);
+        UIUtils.setTextViewStrikeThrough(viewHolder.tvTodoText, todo.done);
+
+        viewHolder.doneCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                activity.updateTodo(position, isChecked);
+            }
+        });
+
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(activity, Todo.class);
+                intent.putExtra(TodoEditActivity.KEY_TODO, todo);
+                activity.startActivityForResult(intent, MainActivity.REQ_CODE_TODO_EDIT);
+            }
+        });
+
         return convertView;
     }
 
     private static class ViewHolder {
         TextView tvTodoText;
+        CheckBox doneCheckbox;
     }
 }
