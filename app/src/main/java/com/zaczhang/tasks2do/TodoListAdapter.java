@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,70 +19,30 @@ import com.zaczhang.tasks2do.utils.UIUtils;
 import java.util.List;
 
 
-public class TodoListAdapter extends BaseAdapter {
+public class TodoListAdapter extends RecyclerView.Adapter {
 
-    private List<Todo> todos;
-    private MainActivity activity;
-    private Context context;
+    private List<Todo> data;
 
-    public TodoListAdapter(@NonNull MainActivity activity, @NonNull List<Todo> todos) {
-        this.activity = activity;
-        this.todos = todos;
+    public TodoListAdapter(@NonNull List<Todo> data) {
+        this.data = data;
+    }
+
+    // 产生View并得到ViewHolder
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_list_item, parent, false);
+
+        return new TodoListViewHolder(view);
     }
 
     @Override
-    public int getCount() {
-        return todos.size();
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        Todo todo = data.get(position);
+        ((TodoListViewHolder) holder).todoText.setText(todo.text);
     }
 
     @Override
-    public Object getItem(int position) {
-        return todos.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        ViewHolder viewHolder;
-        if (convertView == null) {
-            convertView = activity.getLayoutInflater().inflate(R.layout.main_list_item, parent, false);
-            viewHolder = new ViewHolder();
-            viewHolder.tvTodoText = (TextView) convertView.findViewById(R.id.main_list_item_text);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
-
-        final Todo todo = todos.get(position);
-        viewHolder.tvTodoText.setText(todo.text);
-        viewHolder.doneCheckbox.setChecked(todo.done);
-        UIUtils.setTextViewStrikeThrough(viewHolder.tvTodoText, todo.done);
-
-        viewHolder.doneCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                activity.updateTodo(position, isChecked);
-            }
-        });
-
-        convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(activity, Todo.class);
-                intent.putExtra(TodoEditActivity.KEY_TODO, todo);
-                activity.startActivityForResult(intent, MainActivity.REQ_CODE_TODO_EDIT);
-            }
-        });
-
-        return convertView;
-    }
-
-    private static class ViewHolder {
-        TextView tvTodoText;
-        CheckBox doneCheckbox;
+    public int getItemCount() {
+        return data.size();
     }
 }
