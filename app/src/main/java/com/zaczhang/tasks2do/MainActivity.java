@@ -2,21 +2,16 @@ package com.zaczhang.tasks2do;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.zaczhang.tasks2do.models.Todo;
-import com.zaczhang.tasks2do.utils.DateUtils;
 import com.zaczhang.tasks2do.utils.ModelUtils;
 
 import java.util.ArrayList;
@@ -47,16 +42,15 @@ public class MainActivity extends AppCompatActivity {
 
         loadData();
 
-        //adapter = new TodoListAdapter(this, todos);
-        //((ListView) findViewById(R.id.main_list_view)).setAdapter(adapter);
         setupUI(todos);
+
     }
 
     private void setupUI(@NonNull List<Todo> todos) {
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.main_recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new TodoListAdapter(todos));
+        adapter = new TodoListAdapter(this, todos);
+        ((ListView) findViewById(R.id.main_list_view)).setAdapter(adapter);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -117,14 +111,5 @@ public class MainActivity extends AppCompatActivity {
         if (todos == null) {
             todos = new ArrayList<>();
         }
-    }
-
-
-    private List<Todo> mockData() {
-        List<Todo> list = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
-            list.add(new Todo("todo " + i, DateUtils.stringToDate("2016 11 19 0:00")));
-        }
-        return list;
     }
 }

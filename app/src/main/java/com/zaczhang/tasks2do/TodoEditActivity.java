@@ -48,7 +48,7 @@ public class TodoEditActivity extends AppCompatActivity implements
 
         todo = getIntent().getParcelableExtra(KEY_TODO);
         // if this activity is for creating a new todo_item, set remindDate to null
-        remindDate = todo != null? todo.remindDate : null;
+        remindDate = todo != null ? todo.remindDate : null;
 
         setupUI();
     }
