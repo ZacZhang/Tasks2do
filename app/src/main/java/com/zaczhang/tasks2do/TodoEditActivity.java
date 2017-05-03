@@ -2,7 +2,9 @@ package com.zaczhang.tasks2do;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.NotificationManager;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.zaczhang.tasks2do.models.Todo;
+import com.zaczhang.tasks2do.utils.AlarmUtils;
 import com.zaczhang.tasks2do.utils.DateUtils;
 import com.zaczhang.tasks2do.utils.UIUtils;
 
@@ -33,6 +36,7 @@ public class TodoEditActivity extends AppCompatActivity implements
 
     public static final String KEY_TODO = "todo";
     public static final String KEY_TODO_ID = "todo_id";
+    public static final String KEY_NOTIFICATION_ID = "notification_id";
 
     private EditText todoEdit;
     private TextView dateTv;
@@ -51,6 +55,7 @@ public class TodoEditActivity extends AppCompatActivity implements
         remindDate = todo != null ? todo.remindDate : null;
 
         setupUI();
+        cancelNotificationIfNeeded();
     }
 
     @Override
@@ -61,6 +66,14 @@ public class TodoEditActivity extends AppCompatActivity implements
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private void cancelNotificationIfNeeded() {
+        int notificationId = getIntent().getIntExtra(KEY_NOTIFICATION_ID, -1);
+        if (notificationId != -1) {
+            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(notificationId);
+        }
     }
 
     private void setupActionbar() {
@@ -198,6 +211,10 @@ public class TodoEditActivity extends AppCompatActivity implements
         }
 
         todo.done = completeCb.isChecked();
+
+        if (todo.remindDate != null) {
+            AlarmUtils.setAlarm(this, todo);
+        }
 
         Intent intent = new Intent();
         intent.putExtra(KEY_TODO, todo);
